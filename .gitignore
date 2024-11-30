@@ -1,0 +1,37 @@
+@"
+# .NET Core
+bin/
+obj/
+wwwroot/
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# User-specific files
+.vs/
+.vs2019/
+.vs2017/
+.vs2015/
+.idea/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Dd]Release/
+[Dd]ReleasePublic/
+
+# ReSharper
+.idea/
+"@ | Out-File -FilePath .gitignore -Encoding UTF8
