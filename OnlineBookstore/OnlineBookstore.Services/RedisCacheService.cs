@@ -67,7 +67,7 @@ namespace OnlineBookingstore
                 
                 if (stockQuantity < orderBookQuantities[bookId]) // Hvis lagerbeholdningen er mindre end hvad købsordren lyder på
                 {
-                    Console.WriteLine($"test: stockquantity {stockQuantity}, bookquantity {orderBookQuantities[bookId]}");
+                    Console.WriteLine($"Inventory: stockquantity {stockQuantity}, ordered bookquantity {orderBookQuantities[bookId]}");
                     insufficientStock.Add(bookId);
                 }
             }
