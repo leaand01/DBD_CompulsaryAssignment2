@@ -1,5 +1,6 @@
--- Shema Migrations 001 - 006 in OnlineBookstore
--- Important before able to run this script: go to Query in menu and select SQLCMD Mode in order to be able to execute lines starting with :r (when selected lines starting with :r are highlighted)
+-- Shema Migrations 001 - 005 in OnlineBookstore
+-- Important before able to run this script: go to Query in menu and select SQLCMD Mode in order to be able to execute lines starting with :r
+-- (when selected lines starting with :r are highlighted)
 
 -- create OnlineBookstore db if do not exist
 :r "C:\easv\Databases for Developers\Opgaver\DBD_CompulsaryAssigmnemt2\001_create_local_db_OnlineBookstore.sql"
@@ -7,7 +8,6 @@ go
 
 use OnlineBookstore;
 go
-
 
 -- create table customers
 :r "C:\easv\Databases for Developers\Opgaver\DBD_CompulsaryAssigmnemt2\002_create_table_customers.sql"
