@@ -14,6 +14,15 @@ namespace OnlineBookingstore
         }
 
         
+        /// <summary>
+        /// Opdater ClosedOrder tabellen og Inventory tabellen baseret på købsordren.
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <param name="customerId"></param>
+        /// <param name="priceTotal"></param>
+        /// <param name="bookIds"></param>
+        /// <param name="sqlTransaction"></param>
+        /// <returns></returns>
         public async Task UpdateSQLDatabase(Guid orderId, int customerId, decimal priceTotal, List<int> bookIds, SqlTransaction sqlTransaction)
         {
             try
@@ -61,8 +70,12 @@ namespace OnlineBookingstore
         }
 
 
-        // Henter bog priser fra SQL tabellen Books og beregner prisen pr bog ganget med antal gange står i købsordren
-        public async Task<(Dictionary<int, decimal> totalPrices, List<decimal> individualPrices)> GetBookPricesAsync(List<int> bookIds) 
+        /// <summary>
+        /// Henter bog priser fra SQL tabellen Books og beregner prisen pr bog ganget med antal gange står i købsordren
+        /// </summary>
+        /// <param name="bookIds"></param>
+        /// <returns></returns>
+        public async Task<(Dictionary<int, decimal> totalPrices, List<decimal> individualPrices)> GetBookPricesFromSqlAndCalcOrderPrice(List<int> bookIds) 
         {
             var bookPrices = new Dictionary<int, decimal>(); // Dictionary til at gemme priserne
             var individualPrices = new List<decimal>(); // Liste til at gemme individuelle bogpriser

@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using StackExchange.Redis;
 
 
@@ -17,8 +16,11 @@ namespace OnlineBookingstore
         }
 
 
-        // opdater cache inventory med data direkte fra SQL tabellen
-        public async Task UpdateRedisCache()
+        /// <summary>
+        /// opdater cache inventory med data direkte fra SQL tabellen
+        /// </summary>
+        /// <returns></returns>
+        public async Task UpdateRedisCacheUsingSqlInventoryTabel()
         {
             // Hent databasen fra den eksisterende Redis-forbindelse
             var db = _redis.GetDatabase();
@@ -40,8 +42,13 @@ namespace OnlineBookingstore
         }
 
 
-        // Tjek redis cache om der er nok bøger på lager til at gennemføre ordren
-        public async Task<List<int>> CheckStockAvailability(List<int> bookIds)
+        /// <summary>
+        /// Tjek redis cache om der er nok bøger på lager til at gennemføre ordren
+        /// </summary>
+        /// <param name="bookIds"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public async Task<List<int>> CheckStockAvailabilityInRedisCache(List<int> bookIds)
         {
             var orderBookQuantities = bookIds
                 .GroupBy(bookId => bookId)
@@ -73,15 +80,7 @@ namespace OnlineBookingstore
             return insufficientStock;
         }
 
-
-        public async Task ClearRedisCache()
-        {
-            var db = _redis.GetDatabase();
-            await db.ExecuteAsync("FLUSHALL");  // Rydder alle databaser i Redis
-            Console.WriteLine("Redis cache cleared.");
-        }
-
-
+        
         public async Task<Dictionary<int, int>> GetNewStockQuantitiesFromSql() // Flyttet herover for at undgå cirkulær afhængighed ml SqlService og RedisCacheService
         {
             string query = @"

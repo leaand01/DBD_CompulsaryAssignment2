@@ -68,15 +68,14 @@ class Program
 
         
         // Opdater Redis med nyeste lagerstatus direkte fra SQL
-        await redisCacheService.UpdateRedisCache();
+        await redisCacheService.UpdateRedisCacheUsingSqlInventoryTabel();
 
         // her vil jeg gerne tilføje en ClosedOrderDetails hvor specificerer hvilke bøger der er købt (skal nok også specificerer brugernavn således at ordren kan knyttes til customerId i sql Customers tabellen. men når gør dette skal ACID principperne overholdes så jeg heller ikke risikere at sælge flere bøger end har på lager. dvs skal opdaterer ClosedOrders SQL tabellen, Inventory SQL tabellen samt opdatere redis cache
 
         // Eksempel forklaret: kunde med customerId=1 køber 1stk af bookId=1, 1stk af bookId=2 og 2stk af bookId=3
         int customerId = 1;
-        //var bookIds = new List<int> { 1, 2, 3, 3 };
-        var bookIds = new List<int> { 1,2};
-        await createClosedOrderService.HandleOrderAsync(mongoDB, bookIds, customerId);
+        var bookIds = new List<int> { 1, 2, 3, 3 };
+        await createClosedOrderService.HandleOrder(mongoDB, bookIds, customerId);
 
         // Der kan tilføjes flere købsordrer her (eller ændres i ovenstående eksempel). Pr default har sat start inventory til 10 stk af hver bog, hvor der er 3 forskellige bøger.
         // Hvis en købsordrer lyder på mere end inventory bliver ordren annuleret og en exception bliver thrown.

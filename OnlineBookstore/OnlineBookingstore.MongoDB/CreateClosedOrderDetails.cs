@@ -1,6 +1,7 @@
 ﻿using MongoDB.Driver;
 using Microsoft.Data.SqlClient;
 
+
 namespace OnlineBookingstore.MongoDB
 {
     public class CreateClosedOrderDetails // benyt DI vha constructor injection
@@ -19,6 +20,14 @@ namespace OnlineBookingstore.MongoDB
 
         // Bemærk har benyttet DI vha constructor injection for at undgå funktioner skulle have databaser, connections mv som input. Men kunne ikke få det til at virke her,
         // hvorfor der gives mongoDB som input
+        /// <summary>
+        /// Opretter købsordrer i montoDb ClosedOrderDetails
+        /// </summary>
+        /// <param name="mongoDB"></param>
+        /// <param name="bookIds"></param>
+        /// <param name="prices"></param>
+        /// <param name="customerId"></param>
+        /// <returns></returns>
         public async Task CreateClosedOrderDetail(IMongoDatabase mongoDB, List<int> bookIds, List<decimal> prices, int customerId)
         {
             // Start en session til MongoDB transaktioner
@@ -55,15 +64,28 @@ namespace OnlineBookingstore.MongoDB
         }
 
 
-        public async Task HandleOrderAsync(IMongoDatabase mongoDB, List<int> bookIds, int customerId)
+        
+        /// <summary>
+        /// Behandler købsordrer.
+        /// Før en købsordrer kan gennemføres tjekkes følgende:
+        /// tjek først i cache inventory at der er nok af de enkelte bøger på lager til at gennemføre købet - ellers afbrydes det.
+        /// Hvis købsordren kan gennemføres oprettet der en ClosedOrderDetails i mongoDB samt en ClosedOrder i SQL, hvor inventory tabellen i sql også opdateres.
+        /// Når sql inventory er opdateret bliver cache inventory opdateret for hurtigt at kunne tjekke om nye ordrer kan gennemføres.
+        /// Hvis blot en ting går galt bliver hele købsordren annuleret (håndteres i en transaction). Dette er med til at overholde ACID-principperne.
+        /// </summary>
+        /// <param name="mongoDB"></param>
+        /// <param name="bookIds"></param>
+        /// <param name="customerId"></param>
+        /// <returns></returns>
+        public async Task HandleOrder(IMongoDatabase mongoDB, List<int> bookIds, int customerId)
         {
             try
             {
                 // Først tjek redis cache inventory ift købsordren: Hvis der ifg cache inventory er færre af en slags bøger end hvad ordren lyder på, annuleres ordren og der smides en exception
-                await _redisService.CheckStockAvailability(bookIds); // Benyt redis cache da er hurtigere end at tjekken inventory tabellen i SQL
+                await _redisService.CheckStockAvailabilityInRedisCache(bookIds); // Benyt redis cache da er hurtigere end at tjekken inventory tabellen i SQL
 
                 // Hent priserne for bøgerne ordren lyder på fra SQL-databasen
-                var (totalPrices, individualPrices) = await _sqlService.GetBookPricesAsync(bookIds); 
+                var (totalPrices, individualPrices) = await _sqlService.GetBookPricesFromSqlAndCalcOrderPrice(bookIds); 
                 // totalPrices er en Dictionary<int, decimal> med samlede priser per bog. Hvis fx ordren lyder på flere eksemplarer af den samme bog lægges dens pris sammen det tilsvarende antal gange
                 // individualPrices er en List<decimal> med prisen på hver bog (prisen gentages i listen hvis ordren lyder på flere eksemplarer af bogen)
 
@@ -85,7 +107,7 @@ namespace OnlineBookingstore.MongoDB
                 }
 
                 // Opdater redis cache
-                await _redisService.UpdateRedisCache(); // await sikrer vi ikke går videre til næste linje før denne er færdig (en async funktion)
+                await _redisService.UpdateRedisCacheUsingSqlInventoryTabel(); // await sikrer vi ikke går videre til næste linje før denne er færdig (en async funktion)
                 Console.WriteLine("Order handled successfully.");
             }
             catch (Exception ex)
