@@ -21,6 +21,3 @@ go
 
 :r "C:\easv\Databases for Developers\Opgaver\DBD_CompulsaryAssigmnemt2\005_create_table_closedOrders.sql"
 go
-
-:r "C:\easv\Databases for Developers\Opgaver\DBD_CompulsaryAssigmnemt2\006_create_table_openOrders.sql"
-go
